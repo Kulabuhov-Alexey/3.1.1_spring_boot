@@ -4,14 +4,12 @@ import com.kulabuha.web.entity.Role;
 import com.kulabuha.web.entity.User;
 import com.kulabuha.web.service.RoleService;
 import com.kulabuha.web.service.UserService;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Controller
@@ -25,41 +23,53 @@ public class UserController {
         this.roleService = roleService;
     }
 
-    @RequestMapping(value = {"/", "/admin"})
-    public String getAllUsers(Model model) {
-
-        List<User> allUsers = userService.getAllUsers();
-        model.addAttribute("allUsers", allUsers);
-        return "users";
+    @RequestMapping(value = {"/user"})
+    public String getUserPanel(Model model, Authentication authentication) {
+        Long id = ((User) authentication.getPrincipal()).getId();
+        User user = userService.getUser(id);
+        model.addAttribute("user", user);
+        return "user";
     }
 
-    @RequestMapping(value = "/admin/addNewUser")
-    public ModelAndView addNewUser() {
-        ModelAndView modelAndView = new ModelAndView("userInfo");
+    @RequestMapping(value = "/login")
+    public String login(@RequestParam(value = "error", required = false) String error,
+                        @RequestParam(value = "logout", required = false) String logout,
+                        Model model) {
+        model.addAttribute("error", error != null);
+        model.addAttribute("logout", logout != null);
+        return "login";
+    }
+
+    @RequestMapping(value = {"/", "/admin"})
+    public String getAdminPanel(Model model, Authentication authentication) {
+        List<User> allUsers = userService.getAllUsers();
         User user = new User();
-        modelAndView.addObject("user", user);
         Set<Role> roleSet = roleService.getAllRoles();
-        modelAndView.addObject("allRoles", roleSet);
-        return modelAndView;
+        model.addAttribute("allRoles", roleSet);
+        model.addAttribute("currentUserEmail", ((User) authentication.getPrincipal()).getEmail());
+        model.addAttribute("currentUserRoles", ((User) authentication.getPrincipal()).getRolesToStr());
+        model.addAttribute("allUsers", allUsers);
+        model.addAttribute("user", user);
+        return "admin";
     }
 
     @PostMapping("/admin/saveUser")
-    public String saveUser(@ModelAttribute("user") User user,
-                           @RequestParam Map<String, String> form) {
-        user.setRoles(roleService.getRolesFromForm(roleService.getAllRoles(), form));
+    public String saveUser(@ModelAttribute("user") User user) {
         userService.saveUser(user);
         return "redirect:/";
     }
 
-    @GetMapping(value = {"/admin/updateInfo","/updateInfo"})
-    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ROLE_ADMIN')")
-    public ModelAndView updateUser(@RequestParam("userId") Long id) {
-        ModelAndView modelAndView = new ModelAndView("userInfo");
-        User user = userService.getUser(id);
-        modelAndView.addObject("user", user);
-        Set<Role> roleSet = roleService.getAllRoles();
-        modelAndView.addObject("allRoles", roleSet);
-        return modelAndView;
+    @GetMapping(value = {"/admin/userInfo"})
+    @ResponseBody
+    public User getCurrentUser(Authentication authentication) {
+        Long id = ((User) authentication.getPrincipal()).getId();
+        return userService.getUser(id);
+    }
+
+    @RequestMapping("/admin/getOne")
+    @ResponseBody
+    public User getOne(Long id) {
+        return userService.getUser(id);
     }
 
     @GetMapping("/admin/deleteUser")

@@ -6,4 +6,5 @@ import java.util.Set;
 
 public interface RoleDAO {
     Set<Role> getAllRoles();
+    Role getRole(Long id);
 }

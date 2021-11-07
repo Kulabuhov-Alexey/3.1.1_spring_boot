@@ -19,4 +19,9 @@ public class RoleDAOImpl implements RoleDAO {
     public Set<Role> getAllRoles() {
         return new HashSet<>(entityManager.createQuery("from roles", Role.class).getResultList());
     }
+
+    @Override
+    public Role getRole(Long id) {
+        return entityManager.find(Role.class, id);
+    }
 }

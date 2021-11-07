@@ -6,16 +6,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity(name = "users")
 @Table
-public class User implements UserDetails {
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String name;
     @Column
     private String password;
 
@@ -28,13 +27,6 @@ public class User implements UserDetails {
     @Column
     private String lastName;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public void setPassword(String password) {
         this.password = password;
@@ -51,7 +43,7 @@ public class User implements UserDetails {
     @Column
     private int age;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     public User() {
@@ -64,9 +56,8 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public User(Long id, String name, String password, Set<Role> roles, String firstName, String lastName, int age, String email) {
+    public User(Long id, String password, Set<Role> roles, String firstName, String lastName, int age, String email) {
         this.id = id;
-        this.name = name;
         this.password = password;
         this.roles = roles;
         this.firstName = firstName;
@@ -115,6 +106,10 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public String getRolesToStr() {
+        return String.join(", ", roles.stream().map(Role::toString).collect(Collectors.toSet()));
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();
@@ -127,7 +122,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return getEmail();
     }
 
     @Override
@@ -149,4 +144,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

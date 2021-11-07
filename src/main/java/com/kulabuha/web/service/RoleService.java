@@ -9,5 +9,5 @@ import java.util.Set;
 public interface RoleService {
     Set<Role> getAllRoles();
 
-    Set<Role> getRolesFromForm(Set<Role> allRoles, Map<String, String> form);
+    Role getRole(Long id);
 }

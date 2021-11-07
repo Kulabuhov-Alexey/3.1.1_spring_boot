@@ -23,7 +23,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Set<Role> getRolesFromForm(Set<Role> allRoles, Map<String, String> form) {
-        return allRoles.stream().filter(x -> form.containsKey(x.toString())).collect(Collectors.toSet());
+    public Role getRole(Long id) {
+        return roleDAO.getRole(id);
     }
 }

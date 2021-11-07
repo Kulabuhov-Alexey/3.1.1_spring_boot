@@ -23,7 +23,7 @@ public class SuccessUserHandler implements AuthenticationSuccessHandler {
         } else {
             Authentication a = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) a.getPrincipal();
-            httpServletResponse.sendRedirect("/updateInfo?userId=" + user.getId());
+            httpServletResponse.sendRedirect("/user");
         }
     }
 }
