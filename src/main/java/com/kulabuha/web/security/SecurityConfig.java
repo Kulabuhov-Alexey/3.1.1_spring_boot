@@ -38,6 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin().loginPage("/login").permitAll()
                 .successHandler(successUserHandler);
+        http.csrf().disable();
     }
 
     // Необходимо для шифрования паролей

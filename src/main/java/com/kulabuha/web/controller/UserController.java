@@ -48,33 +48,9 @@ public class UserController {
         model.addAttribute("allRoles", roleSet);
         model.addAttribute("currentUserEmail", ((User) authentication.getPrincipal()).getEmail());
         model.addAttribute("currentUserRoles", ((User) authentication.getPrincipal()).getRolesToStr());
-        model.addAttribute("allUsers", allUsers);
+        model.addAttribute("currentUserId", ((User) authentication.getPrincipal()).getId());
         model.addAttribute("user", user);
         return "admin";
     }
 
-    @PostMapping("/admin/saveUser")
-    public String saveUser(@ModelAttribute("user") User user) {
-        userService.saveUser(user);
-        return "redirect:/";
-    }
-
-    @GetMapping(value = {"/admin/userInfo"})
-    @ResponseBody
-    public User getCurrentUser(Authentication authentication) {
-        Long id = ((User) authentication.getPrincipal()).getId();
-        return userService.getUser(id);
-    }
-
-    @RequestMapping("/admin/getOne")
-    @ResponseBody
-    public User getOne(Long id) {
-        return userService.getUser(id);
-    }
-
-    @GetMapping("/admin/deleteUser")
-    public String deleteUser(@RequestParam("userId") Long id) {
-        userService.deleteUser(id);
-        return "redirect:/";
-    }
 }
